@@ -56,12 +56,11 @@ class FileSystem {
             });
         });
     }
-    basicSave(path, content, update=false) {
+    basicSave(path, content, update=false, then) {
         fs.writeFile(path, content, err => {
             if(err) throw err;
-            if(update) {
-                Vue.$root.$emit("refreshExplorer");
-            }
+            if(update) Vue.$root.$emit("refreshExplorer");
+            if(typeof then === "function") then();
         });
     }
     basicSaveAs(path, content) {

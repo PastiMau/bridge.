@@ -10,6 +10,7 @@ import { BASE_PATH } from "../constants";
 import JSONTree from "../editor/JsonTree";
 import Provider from "../autoCompletions/Provider";
 import { walkSync } from "../autoCompletions/Dynamic";
+import EventBus from "../EventBus";
 
 export default class Bridge {
     constructor(is_module, file_path) {
@@ -40,7 +41,9 @@ export default class Bridge {
             Dependency: {
                 add(to, dependency, cb) {
                     FileSystem.Cache.addDependency(to, dependency)
-                        .then(cache => cb(cache));
+                        .then(cache =>{
+                            if(typeof cb === "function") cb(cache);
+                        });
                 },
                 remove(from, dependency) {
                     FileSystem.Cache.removeDependency(from, dependency);
@@ -298,6 +301,7 @@ export default class Bridge {
         Runtime.Listeners.remove(event, cb);
     }
     trigger(name, arg, basic=false) {
+        EventBus.trigger(name, arg);
         if(basic) {
             return overwriteTrigger(name, arg);
         } else {

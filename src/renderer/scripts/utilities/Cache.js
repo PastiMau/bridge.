@@ -14,6 +14,7 @@ export default class Cache {
     constructor() {
         this.loaded_cache = undefined;
         this.cached_cache = undefined;
+        this.is_saving = false;
     }
     get project() {
         return Store.state.Explorer.project;
@@ -43,8 +44,8 @@ export default class Cache {
             });
         });
     }
-    getSync(file_path) {
-        return this.getCacheSync()[getFileId(file_path)];
+    getSync(file_path, use_cache) {
+        return this.getCacheSync(use_cache)[getFileId(file_path)];
     }
     clear(file_path) {
         this.getCache((cache) => {
@@ -99,12 +100,16 @@ export default class Cache {
     
     //WRAPPER
     saveCache(data=this.cached_cache) {
-        fs.writeFile(getPath(this.project + "/bridge/.editor-cache"), JSON.stringify(data, null, "\t"), (err) => {
-            if(err) throw err;
-        });
+        if(!this.is_saving) {
+            this.is_saving = true;
+            fs.writeFile(getPath(this.project + "/bridge/.editor-cache"), JSON.stringify(data, null, "\t"), (err) => {
+                this.is_saving = false;
+                if(err) throw err;
+            });
+        }
     }
     getCache(cb) {
-        if(this.cached_cache != undefined && this.loaded_cache == this.project) {
+        if(this.cached_cache != undefined && this.loaded_cache === this.project) {
             cb(this.cached_cache);
             return;
         }

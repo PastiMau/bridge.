@@ -1,5 +1,4 @@
 import { BASE_PATH } from "../constants";
-
 let Runtime = {
     static_base_path: BASE_PATH,
     getBridgePath() {
